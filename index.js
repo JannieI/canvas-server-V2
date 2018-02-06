@@ -1,6 +1,7 @@
 "use strict";
 exports.__esModule = true;
 var express = require("express");
+var dl = require("datalib");
 var app = express();
 // For POST-Support
 var bodyParser = require('body-parser');
@@ -22,7 +23,7 @@ app.post('/api/sayhello', upload.array(), function (request, response) {
     response.send('POST request to homepage');
 });
 app.get('/', function (request, response) {
-    response.send('Hello World');
+    response.send('Hello World ...');
 });
 // http://localhost:3000/api/sayhello/John
 app.get('/api/sayhello/:name', function (request, response) {
@@ -52,5 +53,10 @@ app.get('/api/sayhello/', function (request, response) {
     else {
         response.json(result);
     }
+});
+app.get('/dashboards', function (request, response) {
+    var filePath = '/home/jannie/Projects/canvas-workstation/src/assets/data.widgets.json';
+    var data = dl.json(filePath);
+    response.json(data);
 });
 app.listen(3000);

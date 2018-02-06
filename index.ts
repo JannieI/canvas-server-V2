@@ -1,4 +1,7 @@
 import express = require('express');
+import * as dl from 'datalib';
+
+
 let app = express();
 
 // For POST-Support
@@ -25,7 +28,7 @@ app.post('/api/sayhello', upload.array(), (request, response) => {
 });
 
 app.get('/', function (request, response) {
-    response.send('Hello World');
+    response.send('Hello World ...');
 });
 
 // http://localhost:3000/api/sayhello/John
@@ -58,6 +61,12 @@ app.get('/api/sayhello/', (request, response) => {
     } else {
         response.json(result);
     }
+});
+
+app.get('/dashboards', function (request, response) {
+    let filePath: string = '/home/jannie/Projects/canvas-workstation/src/assets/data.widgets.json';
+    let data = dl.json(filePath);
+    response.json(data);
 });
 
 app.listen(3000);
