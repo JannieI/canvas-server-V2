@@ -1,6 +1,9 @@
 import express = require('express');
 import * as dl from 'datalib';
 
+// SQlite
+var sqlite3 = require('sqlite3').verbose();
+var db = new sqlite3.Database(':memory:');
 
 let app = express();
 
@@ -28,7 +31,7 @@ app.post('/api/sayhello', upload.array(), (request, response) => {
 });
 
 app.get('/', function (request, response) {
-    response.send('Hello World ...');
+    response.send('Hello World ... +');
 });
 
 // http://localhost:3000/api/sayhello/John
@@ -40,9 +43,31 @@ app.get('/api/sayhello/:name', (request, response) => {
             .status(400)
             .send('No string as name');
     } else {
-        response.json({
-            'message': name
+
+        console.log('start SQlite');        
+        
+        // SQlite
+        let values: any[] = [];
+        db.serialize(function () {
+            db.run("CREATE TABLE Test (col1, col2, col3)");
+          
+            db.run("INSERT INTO Test VALUES (?, ?, ?)", ['a1', 'b1', 'c1']);
+            db.run("INSERT INTO Test VALUES (?, ?, ?)", ['a2', 'b2', 'c2']);
+            db.run("INSERT INTO Test VALUES (?, ?, ?)", ['a3', 'b3', 'c3']);
+          
+            db.all("SELECT * FROM Test", function (err, row) {
+                values.push(row)
+                console.log('after get SQlite',row, values);
+                response.json({row});
+            });
+            console.log('after loop SQlite', values);        
         });
+        db.close();
+        console.log('after SQlite');        
+
+        // response.json({
+        //     'message': name
+        // });
     }
 });
 
