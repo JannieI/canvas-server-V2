@@ -3,7 +3,14 @@ import * as dl from 'datalib';
 
 // SQlite
 var sqlite3 = require('sqlite3').verbose();
-var db = new sqlite3.Database(':memory:');
+// let db = new sqlite3.Database('./db/chinook.db', sqlite3.OPEN_READWRITE, (err
+// OPEN_READONLY, OPEN_CREATE
+let db = new sqlite3.Database(':memory:', (err) => {
+  if (err) {
+    return console.error(err.message);
+  }
+  console.log('Connected to the in-memory SQlite database.');
+});
 
 let app = express();
 
@@ -51,18 +58,33 @@ app.get('/api/sayhello/:name', (request, response) => {
         db.serialize(function () {
             db.run("CREATE TABLE Test (col1, col2, col3)");
           
+            // let data = ['Ansi C', 'C'];
+            // let sql = `UPDATE langs
+            // SET name = ?
+            // WHERE name = ?`;
+            // db.run(sql, data, function(err) {
+
+            // db.run(`DELETE FROM langs WHERE rowid=?`, id, function(err) {
             db.run("INSERT INTO Test VALUES (?, ?, ?)", ['a1', 'b1', 'c1']);
             db.run("INSERT INTO Test VALUES (?, ?, ?)", ['a2', 'b2', 'c2']);
             db.run("INSERT INTO Test VALUES (?, ?, ?)", ['a3', 'b3', 'c3']);
           
-            db.all("SELECT * FROM Test", function (err, row) {
-                values.push(row)
-                console.log('after get SQlite',row, values);
-                response.json({row});
+            // each, get (1st)
+            db.all("SELECT * FROM Test", function (err, data) {
+                values.push(data)
+                console.log('after get SQlite',data, values);
+                response.json({data});
             });
             console.log('after loop SQlite', values);        
         });
-        db.close();
+        // db.close();
+        
+        db.close((err) => {
+          if (err) {
+            return console.error(err.message);
+          }
+          console.log('Closed the database connection.');
+        });
         console.log('after SQlite');        
 
         // response.json({
