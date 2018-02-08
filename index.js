@@ -51,9 +51,117 @@ app.get('/api/sayhello/:name', function (request, response) {
     else {
         console.log('start SQlite: use start, end or a person-name', name);
         // SQlite
-        var values_1 = [];
+        var values = [];
         db.serialize(function () {
             if (name == ':start') {
+                var widgetTEMP = {
+                    "widgetType": "Graph",
+                    "widgetSubType": "",
+                    "isTrashed": false,
+                    "dashboardID": 1,
+                    "dashboardTabID": 1,
+                    "id": 1,
+                    "name": "barchart for start",
+                    "description": "bla-bla-bla",
+                    "visualGrammar": "Vega-Lite",
+                    "version": 1,
+                    "isSelected": false,
+                    "isLiked": false,
+                    "nrDataQualityIssues": 0,
+                    "nrComments": 4,
+                    "nrButtonsToShow": 3,
+                    "hyperlinkDashboardID": 1,
+                    "hyperlinkDashboardTabID": 1,
+                    "datasourceID": 1,
+                    "slicerSelection": null,
+                    "datasetID": 4,
+                    "dataParameters": [
+                        {
+                            "field": "",
+                            "value": ""
+                        }
+                    ],
+                    "reportID": 1,
+                    "reportName": "",
+                    "rowLimit": 1,
+                    "addRestRow": false,
+                    "size": "",
+                    "containerBackgroundcolor": "transparent",
+                    "containerBorder": "2px solid black",
+                    "containerBoxshadow": "2px 2px gray",
+                    "containerColor": "transparent",
+                    "containerFontsize": 12,
+                    "containerHeight": 320,
+                    "containerLeft": 50,
+                    "containerWidgetTitle": "Title 1",
+                    "containerTop": 80,
+                    "containerWidth": 410,
+                    "containerZindex": 50,
+                    "titleText": "",
+                    "titleBackgroundColor": "#192b35",
+                    "titleBorder": "",
+                    "titleColor": "",
+                    "titleFontsize": 1,
+                    "titleFontWeight": "",
+                    "titleHeight": 1,
+                    "titleLeft": 1,
+                    "titleMargin": "",
+                    "titlePadding": "",
+                    "titlePosition": "",
+                    "titleTextAlign": "",
+                    "titleTop": 1,
+                    "titleWidth": 1,
+                    "graphType": "",
+                    "graphHeight": 240,
+                    "graphLeft": 1,
+                    "graphTop": 1,
+                    "graphWidth": 240,
+                    "graphGraphPadding": 1,
+                    "graphHasSignals": false,
+                    "graphFillColor": "",
+                    "graphHoverColor": "",
+                    "graphSpecification": "",
+                    "graphDescription": "",
+                    "graphXaggregate": "",
+                    "graphXtimeUnit": "",
+                    "graphXfield": "Horsepower",
+                    "graphXtype": "quantitative",
+                    "graphXaxisTitle": "x tit",
+                    "graphYaggregate": "",
+                    "graphYtimeUnit": "",
+                    "graphYfield": "Miles_per_Gallon",
+                    "graphYtype": "quantitative",
+                    "graphYaxisTitle": "One one",
+                    "graphTitle": "graphTitle",
+                    "graphMark": "tick",
+                    "graphMarkColor": "#4682b4",
+                    "graphUrl": "../assets/vega-datasets/cars.json",
+                    "graphColorField": "",
+                    "graphColorType": "",
+                    "graphData": "",
+                    "tableColor": "",
+                    "tableCols": 1,
+                    "tableHeight": 1,
+                    "tableHideHeader": false,
+                    "tableLeft": 1,
+                    "tableRows": 1,
+                    "tableTop": 1,
+                    "tableWidth": 1,
+                    "shapeCx": "",
+                    "shapeCy": "",
+                    "shapeR": "",
+                    "shapeStroke": "",
+                    "shapeStrokeWidth": "",
+                    "shapeFill": "",
+                    "refreshMode": "",
+                    "refreshFrequency": 1,
+                    "widgetRefreshedOn": "",
+                    "widgetRefreshedBy": "",
+                    "widgetCreatedOn": "",
+                    "widgetCreatedBy": "",
+                    "widgetUpdatedOn": "",
+                    "widgetUpdatedBy": ""
+                };
                 db.run("CREATE TABLE Test (col1, col2, col3)");
                 // let data = ['Ansi C', 'C'];
                 // let sql = `UPDATE langs
@@ -65,6 +173,11 @@ app.get('/api/sayhello/:name', function (request, response) {
                 db.run("INSERT INTO Test VALUES (?, ?, ?)", ['a2', 'b2', 'c2']);
                 db.run("INSERT INTO Test VALUES (?, ?, ?)", ['a3', 'b3', 'c3']);
                 console.log('created new SQlite Table');
+                db.run("CREATE TABLE Widgets (dashboardID INTEGER NOT NULL, dashboardTabID INTEGER NOT NULL, datasourceID INTEGER NOT NULL, datasetID INTEGER NOT NULL, spec BLOB)");
+                var sql = 'INSERT INTO Widgets VALUES (?, ?, ?, ?, ?) ';
+                var vals = [1, 2, 1, 2, JSON.stringify(widgetTEMP)];
+                console.log('vals', JSON.stringify(vals));
+                db.run(sql, vals);
                 response.json('created new SQlite Table');
             }
             else {
@@ -79,12 +192,11 @@ app.get('/api/sayhello/:name', function (request, response) {
                 }
                 else {
                     // each, get (1st)
-                    db.all("SELECT * FROM Test", function (err, data) {
+                    db.all("SELECT * FROM Widgets", function (err, data) {
                         if (err) {
                             console.log('use name start first, and end ...');
                         }
-                        values_1.push(data);
-                        console.log('after get SQlite', data, values_1);
+                        console.log('after get SQlite', err, data);
                         response.json({ data: data });
                     });
                 }
