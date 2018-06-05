@@ -9,9 +9,10 @@ const nSQL = require("nano-sql").nSQL;
 nSQL("posts")
 .model([
     { key: "id", type: "int", props: ["pk", "ai"] },
-    { key: "title", type: "string" },
-    { key: "content", type: "string" },
-    { key: "date", type: "int"}
+    { key: "name", type: "string" },
+    { key: "password", type: "string" },
+    { key: "profession", type: "string"}
+
 ])
 .config({
     mode: "PERM", // store changes permenantly
@@ -21,9 +22,18 @@ nSQL("posts")
         // Database is now ready to use.
     
     // put some data in
-    nSQL("posts").query("upsert", {id: 1, title: "Hello World!", content: "This is my first post!", date: Date.now()}).exec();
-
+    nSQL("posts").query(
+        "upsert", 
+        {
+            "id": 1,
+            "name" : "mohit",
+            "password" : "password1",
+            "profession" : "teacher"
+         }
+    ).exec()
 });
+
+// {id: 1, title: "Hello World!", content: "This is my first post!", date: Date.now()}).exec();
 
 // Create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
@@ -59,15 +69,34 @@ app.get("/posts/:id", (request, res) => {
 
 app.get('/listUsers', function (request, res) {
     fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
+
+        console.log( data );
+        res.send( data );
+    });
+})
+
+app.get('/uploadUsers', function (request, res) {
+    fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
         var users = JSON.parse( data );
 
         // Key-Value pairs
         Object.keys(users).forEach(function(key) {
+            nSQL("posts").query(
+                "upsert", 
+                {
+                    "id": 1,
+                    "name" : "mohit",
+                    "password" : "password1",
+                    "profession" : "teacher"
+                 }
+            ).exec()
             console.log(key, users[key]);
         });
 
-        console.log( data );
-        res.send( data );
+        nSQL("posts").query("select")
+        .exec().then((rows) => 
+            res.send(rows)
+        );
     });
 })
 
