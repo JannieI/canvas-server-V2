@@ -46,14 +46,26 @@ var user = {
        "profession" : "teacher",
        "id": 4
     }
-}
+};
+
 app.get("/posts/:id", (request, res) => {
     	
-    nSQL("posts").query("select").where(["id", "=", request.params.id]).exec().then((rows) => res.send(rows));
+    nSQL("posts").query("select")
+        .where(["id", "=", request.params.id])
+        .exec().then((rows) => 
+            res.send(rows)
+        );
 });
 
 app.get('/listUsers', function (request, res) {
     fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
+        var users = JSON.parse( data );
+
+        // Key-Value pairs
+        Object.keys(users).forEach(function(key) {
+            console.log(key, users[key]);
+        });
+
         console.log( data );
         res.send( data );
     });
@@ -62,10 +74,10 @@ app.get('/listUsers', function (request, res) {
 app.get('/user/:id', function (request, res) {
     // First read existing users.
     fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
-       var users = JSON.parse( data );
-       var user = users["user" + request.params.id] 
-       console.log( user );
-       res.send( JSON.stringify(user));
+        var users = JSON.parse( data );
+        var user = users["user" + request.params.id] 
+        console.log( user );
+        res.send( JSON.stringify(user));
     });
 })
 
@@ -102,10 +114,10 @@ var eventEmitter = new events.EventEmitter();
 
 // Create an event handler as follows
 var connectHandler = function connected() {
-   console.log('connection succesful.');
-  
-   // Fire the data_received event 
-   eventEmitter.emit('data_received');
+    console.log('connection succesful.');
+    
+    // Fire the data_received event 
+    eventEmitter.emit('data_received');
 }
 
 // Bind the connection event with the handler
@@ -113,7 +125,7 @@ eventEmitter.on('connection', connectHandler);
  
 // Bind the data_received event with the anonymous function
 eventEmitter.on('data_received', function(){
-   console.log('data received succesfully.');
+    console.log('data received succesfully.');
 });
 
 // Fire the connection event 
@@ -123,7 +135,7 @@ app.get('/index.htm', function (req, res) {
 
     var data = fs.readFile("index.htm", "utf8", function(error, data) {
         console.log("ASYNC index.htm", data);
-      });
+    });
 
     var data = fs.readFileSync("index.htm", "utf8");
     console.log("SYNC index.htm", data);
@@ -161,8 +173,8 @@ app.get('/files', function (request, res) {
 app.get('/process_get', function (request, res) {
     // Prepare output in JSON format
     response = {
-       first_name:request.query.first_name,
-       last_name:request.query.last_name
+        first_name:request.query.first_name,
+        last_name:request.query.last_name
     };
     console.log(response);
     res.end(JSON.stringify(response));
@@ -175,17 +187,17 @@ app.post('/file_upload', function (request, res) {
     var file = __dirname + "/" + request.files.file.name;
     
     fs.readFile( request.files.file.path, function (err, data) {
-       fs.writeFile(file, data, function (err) {
-          if( err ){
-             console.log( err );
-             }else{
-                response = {
-                   message:'File uploaded successfully',
-                   filename:request.files.file.name
-                };
-             }
-          console.log( response );
-          res.end( JSON.stringify( response ) );
+        fs.writeFile(file, data, function (err) {
+            if( err ){
+                console.log( err );
+                }else{
+                    response = {
+                    message:'File uploaded successfully',
+                    filename:request.files.file.name
+                    };
+                }
+            console.log( response );
+            res.end( JSON.stringify( response ) );
        });
     });
 })
@@ -193,8 +205,8 @@ app.post('/file_upload', function (request, res) {
 app.post('/process_post', urlencodedParser, function (request, res) {
     // Prepare output in JSON format
     response = {
-       first_name:request.body.first_name,
-       last_name:request.body.last_name
+        first_name:request.body.first_name,
+        last_name:request.body.last_name
     };
     console.log(response);
     res.end(JSON.stringify(response));
@@ -203,9 +215,9 @@ app.post('/process_post', urlencodedParser, function (request, res) {
 // File Watch
 var fileName = "index.htm";
 fs.watchFile(fileName, {
-  persistent: true
+    persistent: true
 }, function(event, filename) {
-  console.log(event + " event occurred on " + filename);
+    console.log(event + " event occurred on " + filename);
 });
 
 // ls Folder
