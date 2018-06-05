@@ -79,6 +79,13 @@ app.get('/listUsers', function (request, res) {
     });
 })
 
+app.get('/listUsersDB', function (request, res) {
+    nSQL("posts").query("select")
+        .exec().then((rows) => 
+            res.send(rows)
+        );
+})
+
 app.get('/uploadUsers', function (request, res) {
     fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
         var users = JSON.parse( data );
@@ -99,7 +106,7 @@ app.get('/uploadUsers', function (request, res) {
     });
 })
 
-app.get('deleteUsers', function (request, res) {
+app.get('/deleteUsers', function (request, res) {
     // Delete ALL Users
     nSQL("posts")
         .query("delete")
