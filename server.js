@@ -111,17 +111,29 @@ app.get('/index.htm', function (req, res) {
 
 app.get('/files', function (request, res) {
     
-    var folder = request.query.folder;
+    let folder = request.query.folder;
     console.warn("Listing folder:", folder)
-    // var folder = './' + folder;
-    var files = fs.readdirSync(folder);
-    for (var index in files) {
-        var currentFile = folder + '/' + files[index];
+
+    let folders = [];
+    let files = [];
+
+    var objects = fs.readdirSync(folder);
+    for (var index in objects) {
+
+        var currentFile = folder + '/' + objects[index];
         var stats = fs.statSync(currentFile);
-        console.log(files[index], stats.isFile());
+
+        if (stats.isDirectory()) {
+            folders.push(objects[index]);
+        };
+        if (stats.isFile()) {
+            files.push(objects[index]);
+        };
+        
+        console.log(objects[index], stats.isFile());
     };
 
-    res.send(files);
+    res.send({"folders": folders, "files": files});
 });
 
 app.get('/process_get', function (req, res) {
