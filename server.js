@@ -20,17 +20,21 @@ nSQL("posts")
 })
 .connect().then(() => {
         // Database is now ready to use.
-    
+
+
+            
+            // .where(["age",">",50]).exec()
+
     // put some data in
-    nSQL("posts").query(
-        "upsert", 
-        {
-            "id": 1,
-            "name" : "mohit",
-            "password" : "password1",
-            "profession" : "teacher"
-         }
-    ).exec()
+    // nSQL("posts").query(
+    //     "upsert", 
+    //     {
+    //         "id": 1,
+    //         "name" : "mohit",
+    //         "password" : "password1",
+    //         "profession" : "teacher"
+    //      }
+    // ).exec()
 });
 
 // {id: 1, title: "Hello World!", content: "This is my first post!", date: Date.now()}).exec();
@@ -83,14 +87,9 @@ app.get('/uploadUsers', function (request, res) {
         Object.keys(users).forEach(function(key) {
             nSQL("posts").query(
                 "upsert", 
-                {
-                    "id": 1,
-                    "name" : "mohit",
-                    "password" : "password1",
-                    "profession" : "teacher"
-                 }
+                users[key]
             ).exec()
-            console.log(key, users[key]);
+            console.log('Added record for ', key);
         });
 
         nSQL("posts").query("select")
@@ -98,6 +97,14 @@ app.get('/uploadUsers', function (request, res) {
             res.send(rows)
         );
     });
+})
+
+app.get('deleteUsers', function (request, res) {
+    // Delete ALL Users
+    nSQL("posts")
+        .query("delete")
+        .exec()
+    res.send('All Users Deleted')
 })
 
 app.get('/user/:id', function (request, res) {
