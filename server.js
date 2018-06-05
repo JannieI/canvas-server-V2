@@ -3,6 +3,27 @@
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
+const nSQL = require("nano-sql").nSQL;
+
+// Create Nano Table, and connect to DB
+nSQL("posts")
+.model([
+    { key: "id", type: "int", props: ["pk", "ai"] },
+    { key: "title", type: "string" },
+    { key: "content", type: "string" },
+    { key: "date", type: "int"}
+])
+.config({
+    mode: "PERM", // store changes permenantly
+    history: "row" // store each row's changes as a revision history
+})
+.connect().then(() => {
+        // Database is now ready to use.
+    
+    // put some data in
+    nSQL("posts").query("upsert", {id: 1, title: "Hello World!", content: "This is my first post!", date: Date.now()}).exec();
+
+});
 
 // Create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
@@ -26,25 +47,29 @@ var user = {
        "id": 4
     }
 }
+app.get("/posts/:id", (request, res) => {
+    	
+    nSQL("posts").query("select").where(["id", "=", request.params.id]).exec().then((rows) => res.send(rows));
+});
 
-app.get('/listUsers', function (req, res) {
+app.get('/listUsers', function (request, res) {
     fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
         console.log( data );
         res.send( data );
     });
 })
 
-app.get('/user/:id', function (req, res) {
+app.get('/user/:id', function (request, res) {
     // First read existing users.
     fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
        var users = JSON.parse( data );
-       var user = users["user" + req.params.id] 
+       var user = users["user" + request.params.id] 
        console.log( user );
        res.send( JSON.stringify(user));
     });
 })
 
-app.post('/addUser', function (req, res) {
+app.post('/addUser', function (request, res) {
     // First read existing users.
     fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
         data = JSON.parse( data );
@@ -56,7 +81,7 @@ app.post('/addUser', function (req, res) {
 
 var id = 2;
 
-app.delete('/deleteUser', function (req, res) {
+app.delete('/deleteUser', function (request, res) {
 
    // First read existing users.
    fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
@@ -68,12 +93,9 @@ app.delete('/deleteUser', function (req, res) {
    });
 })
 
-
-
 // Events Example
 // Import events module
 var events = require('events');
-
 
 // Create an eventEmitter object
 var eventEmitter = new events.EventEmitter();
@@ -136,30 +158,30 @@ app.get('/files', function (request, res) {
     res.send({"folders": folders, "files": files});
 });
 
-app.get('/process_get', function (req, res) {
+app.get('/process_get', function (request, res) {
     // Prepare output in JSON format
     response = {
-       first_name:req.query.first_name,
-       last_name:req.query.last_name
+       first_name:request.query.first_name,
+       last_name:request.query.last_name
     };
     console.log(response);
     res.end(JSON.stringify(response));
 })
 
-app.post('/file_upload', function (req, res) {
-    console.log(req.files.file.name);
-    console.log(req.files.file.path);
-    console.log(req.files.file.type);
-    var file = __dirname + "/" + req.files.file.name;
+app.post('/file_upload', function (request, res) {
+    console.log(request.files.file.name);
+    console.log(request.files.file.path);
+    console.log(request.files.file.type);
+    var file = __dirname + "/" + request.files.file.name;
     
-    fs.readFile( req.files.file.path, function (err, data) {
+    fs.readFile( request.files.file.path, function (err, data) {
        fs.writeFile(file, data, function (err) {
           if( err ){
              console.log( err );
              }else{
                 response = {
                    message:'File uploaded successfully',
-                   filename:req.files.file.name
+                   filename:request.files.file.name
                 };
              }
           console.log( response );
@@ -168,11 +190,11 @@ app.post('/file_upload', function (req, res) {
     });
 })
  
-app.post('/process_post', urlencodedParser, function (req, res) {
+app.post('/process_post', urlencodedParser, function (request, res) {
     // Prepare output in JSON format
     response = {
-       first_name:req.body.first_name,
-       last_name:req.body.last_name
+       first_name:request.body.first_name,
+       last_name:request.body.last_name
     };
     console.log(response);
     res.end(JSON.stringify(response));
