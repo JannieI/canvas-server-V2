@@ -1,17 +1,22 @@
-// server.js
+// // server.js
 
-// BASE SETUP
-// =============================================================================
-
-// call the packages we need
-var express    = require('express');        // call express
-var app        = express();                 // define our app using express
+var express = require('express');
+var app = express();
 var bodyParser = require('body-parser');
-var fs = require("fs");
+
+// Create application/x-www-form-urlencoded parser
+var urlencodedParser = bodyParser.urlencoded({ extended: false })
+
 // configure app to use bodyParser()
 // this will let us get the data from a POST
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+
+app.use(express.static('images'));
+// app.use(bodyParser.json());
+
+var fs = require("fs");
+var os = require("os")
+var path = require("path")
 
 var user = {
     "user4" : {
@@ -25,19 +30,21 @@ var user = {
 app.get('/listUsers', function (req, res) {
     fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
         console.log( data );
-        res.end( data );
+        res.send( data );
     });
 })
 
-app.get('/:id', function (req, res) {
-    // First read existing users.
-    fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
-       var users = JSON.parse( data );
-       var user = users["user" + req.params.id] 
-       console.log( user );
-       res.end( JSON.stringify(user));
-    });
-})
+// app.get('/:id', function (req, res) {
+//     // First read existing users.
+//     fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
+//        var users = JSON.parse( data );
+//        var user = users["user" + req.params.id] 
+//        console.log( user );
+//        res.send( JSON.stringify(user));
+//     });
+// })
+
+
 
 app.post('/addUser', function (req, res) {
     // First read existing users.
@@ -45,7 +52,7 @@ app.post('/addUser', function (req, res) {
         data = JSON.parse( data );
         data["user4"] = user["user4"];
         console.log( data );
-        res.end( JSON.stringify(data));
+        res.send( JSON.stringify(data));
     });
 })
 
@@ -59,7 +66,7 @@ app.delete('/deleteUser', function (req, res) {
        delete data["user" + 2];
        
        console.log( data );
-       res.end( JSON.stringify(data));
+       res.send( JSON.stringify(data));
    });
 })
 
@@ -92,59 +99,76 @@ eventEmitter.on('data_received', function(){
 // Fire the connection event 
 eventEmitter.emit('connection');
 
-console.log("Program Ended.");
-
-var server = app.listen(8080, function () {
+app.get('/index.htm', function (req, res) {
+    res.sendFile( __dirname + "/" + "index.htm" );
+ })
  
+ app.post('/process_post', urlencodedParser, function (req, res) {
+    // Prepare output in JSON format
+    response = {
+       first_name:req.body.first_name,
+       last_name:req.body.last_name
+    };
+    console.log(response);
+    res.end(JSON.stringify(response));
+ })
+ 
+ var server = app.listen(8080, function () {
     var host = server.address().address
     var port = server.address().port
     var p    = "users.json"
-
-    console.log("Example app listening at http://%s:%s")
-    console.log("  Host: Port", host, ":", port)
-    console.log("  Running: Folder: File", __dirname, __filename)
-    console.log("  os.hostname(), os.tmpdir(), os.release()", os.hostname(), os.tmpdir(), os.release())
-    console.log("  os.totalmem(), os.freemem()", os.totalmem(), os.freemem())
-    console.log("  path.dirname(p)", path.dirname(p))
-    console.log("  ", )
-    console.log("  ", )
     
-})
+    console.log("Example app listening at http://%s:%s")
+    console.log("  Host", host)
+    console.log("  Port", port)
+    console.log("  Folder", __dirname)
+    console.log("  File", __filename)
+    console.log("  os.hostname()", os.hostname())
+    console.log("  os.tmpdir()", os.tmpdir())
+    console.log("  os.release()", os.release())
+    console.log("  os.totalmem()", os.totalmem())
+    console.log("  os.freemem()", os.freemem())
+    console.log("  path.dirname(p)", path.dirname(p))
+    console.log(" ")
+    console.log("Running.  Messages:")
+    console.log(" ")
+ })
 
 
-// Web Server Sample
-// var http = require('http');
-// var fs = require('fs');
-// var url = require('url');
 
-// // Create a server
-// http.createServer( function (request, response) {  
-//    // Parse the request containing file name
-//    var pathname = url.parse(request.url).pathname;
+// // Web Server Sample
+// // var http = require('http');
+// // var fs = require('fs');
+// // var url = require('url');
+
+// // // Create a server
+// // http.createServer( function (request, response) {  
+// //    // Parse the request containing file name
+// //    var pathname = url.parse(request.url).pathname;
    
-//    // Print the name of the file for which request is made.
-//    console.log("Request for " + pathname + " received.");
+// //    // Print the name of the file for which request is made.
+// //    console.log("Request for " + pathname + " received.");
    
-//    // Read the requested file content from file system
-//    fs.readFile(pathname.substr(1), function (err, data) {
-//       if (err) {
-//          console.log(err);
-//          // HTTP Status: 404 : NOT FOUND
-//          // Content Type: text/plain
-//          response.writeHead(404, {'Content-Type': 'text/html'});
-//       }else {	
-//          //Page found	  
-//          // HTTP Status: 200 : OK
-//          // Content Type: text/plain
-//          response.writeHead(200, {'Content-Type': 'text/html'});	
+// //    // Read the requested file content from file system
+// //    fs.readFile(pathname.substr(1), function (err, data) {
+// //       if (err) {
+// //          console.log(err);
+// //          // HTTP Status: 404 : NOT FOUND
+// //          // Content Type: text/plain
+// //          response.writeHead(404, {'Content-Type': 'text/html'});
+// //       }else {	
+// //          //Page found	  
+// //          // HTTP Status: 200 : OK
+// //          // Content Type: text/plain
+// //          response.writeHead(200, {'Content-Type': 'text/html'});	
          
-//          // Write the content of the file to response body
-//          response.write(data.toString());		
-//       }
-//       // Send the response body 
-//       response.end();
-//    });   
-// }).listen(8081);
+// //          // Write the content of the file to response body
+// //          response.write(data.toString());		
+// //       }
+// //       // Send the response body 
+// //       response.end();
+// //    });   
+// // }).listen(8081);
 
-// // Console will print the message
-// console.log('Server running at http://127.0.0.1:8081/');
+// // // Console will print the message
+// // console.log('Server running at http://127.0.0.1:8081/');
