@@ -44,8 +44,6 @@ app.get('/user/:id', function (req, res) {
     });
 })
 
-
-
 app.post('/addUser', function (req, res) {
     // First read existing users.
     fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
@@ -111,6 +109,19 @@ app.get('/index.htm', function (req, res) {
     res.sendFile( __dirname + "/" + "index.htm" );
 })
 
+app.get('/files/:folder', function (req, res) {
+    console.warn("Listing folder:", folder)
+    var folder = '.';
+    var files = fs.readdirSync(folder);
+    for (var index in files) {
+        var currentFile = folder + '/' + files[index];
+        var stats = fs.statSync(currentFile);
+        console.log(files[index], stats.isFile());
+    };
+
+    res.send(files);
+});
+
 app.get('/process_get', function (req, res) {
     // Prepare output in JSON format
     response = {
@@ -163,27 +174,27 @@ fs.watchFile(fileName, {
 
 // ls Folder
 console.warn("Current folder:")
-fs.readdir('.', function (err, files) {
-    if (err)
-       throw err;
-    for (var index in files) {
-       console.log(files[index]);
-    }
-});
+var folder = '.';
+var files = fs.readdirSync(folder);
+for (var index in files) {
+    var currentFile = folder + '/' + files[index];
+    var stats = fs.statSync(currentFile);
+    console.log(files[index], stats.isFile());
+}
 
 // Traverse FS
-console.warn("Traverse parent:")
+// console.warn("Traverse parent:")
 var traverseFileSystem = function (currentPath) {
-    console.log(currentPath);
+    // console.log(currentPath);
     var files = fs.readdirSync(currentPath);
     for (var i in files) {
         var currentFile = currentPath + '/' + files[i];
         var stats = fs.statSync(currentFile);
         if (stats.isFile()) {
-            console.log(currentFile);
+            // console.log(currentFile);
         }
         else if (stats.isDirectory()) {
-            console.log("Folder: ", currentFile);
+            // console.log("Folder: ", currentFile);
             
             if (currentFile != './node_modules'  
                 &&
