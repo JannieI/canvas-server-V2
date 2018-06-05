@@ -34,15 +34,15 @@ app.get('/listUsers', function (req, res) {
     });
 })
 
-// app.get('/:id', function (req, res) {
-//     // First read existing users.
-//     fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
-//        var users = JSON.parse( data );
-//        var user = users["user" + req.params.id] 
-//        console.log( user );
-//        res.send( JSON.stringify(user));
-//     });
-// })
+app.get('/user/:id', function (req, res) {
+    // First read existing users.
+    fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
+       var users = JSON.parse( data );
+       var user = users["user" + req.params.id] 
+       console.log( user );
+       res.send( JSON.stringify(user));
+    });
+})
 
 
 
@@ -100,6 +100,14 @@ eventEmitter.on('data_received', function(){
 eventEmitter.emit('connection');
 
 app.get('/index.htm', function (req, res) {
+
+    var data = fs.readFile("index.htm", "utf8", function(error, data) {
+        console.log("ASYNC index.htm", data);
+      });
+
+    var data = fs.readFileSync("index.htm", "utf8");
+    console.log("SYNC index.htm", data);
+
     res.sendFile( __dirname + "/" + "index.htm" );
 })
 
@@ -144,8 +152,78 @@ app.post('/process_post', urlencodedParser, function (req, res) {
     console.log(response);
     res.end(JSON.stringify(response));
 })
- 
- var server = app.listen(8080, function () {
+
+// File Watch
+var fileName = "index.htm";
+fs.watchFile(fileName, {
+  persistent: true
+}, function(event, filename) {
+  console.log(event + " event occurred on " + filename);
+});
+
+// ls Folder
+console.warn("Current folder:")
+fs.readdir('.', function (err, files) {
+    if (err)
+       throw err;
+    for (var index in files) {
+       console.log(files[index]);
+    }
+});
+
+// Traverse FS
+console.warn("Traverse parent:")
+var traverseFileSystem = function (currentPath) {
+    console.log(currentPath);
+    var files = fs.readdirSync(currentPath);
+    for (var i in files) {
+        var currentFile = currentPath + '/' + files[i];
+        var stats = fs.statSync(currentFile);
+        if (stats.isFile()) {
+            console.log(currentFile);
+        }
+        else if (stats.isDirectory()) {
+            console.log("Folder: ", currentFile);
+            
+            if (currentFile != './node_modules'  
+                &&
+                currentFile != './.git') {
+                traverseFileSystem(currentFile);
+            };
+        };
+    };
+};
+traverseFileSystem('.');
+
+
+// Other fs methods
+// fs.stat('data.txt', function (err, stats) {
+//     if (err)
+//        throw err;
+//     if (stats.isFile()) {
+//         console.log('It\'s a file!');
+//     }
+//     if (stats.isDirectory()) {
+//       console.log('It\'s a directory!');
+//     }
+//     for (var i in stats) {
+//        if ('function' !== typeof stats[i])
+//        console.log(i + '\t= ' + stats[i]);
+//      }
+//     });
+//    fs.rename('data2.txt', 'data2_new.txt', function (err) {
+//     if (err)
+//       throw err;
+//     console.log('Renamed!');
+//    });
+//    fs.chmod('data3.txt', '0777', function (err) {
+//      if (err)
+//         throw err;
+//      console.log('File permissions changed!');
+//    });
+
+// Listen
+var server = app.listen(8080, function () {
     var host = server.address().address
     var port = server.address().port
     var p    = "users.json"
