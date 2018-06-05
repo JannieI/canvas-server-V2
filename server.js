@@ -109,9 +109,11 @@ app.get('/index.htm', function (req, res) {
     res.sendFile( __dirname + "/" + "index.htm" );
 })
 
-app.get('/files/:folder', function (req, res) {
+app.get('/files', function (request, res) {
+    
+    var folder = request.query.folder;
     console.warn("Listing folder:", folder)
-    var folder = '.';
+    // var folder = './' + folder;
     var files = fs.readdirSync(folder);
     for (var index in files) {
         var currentFile = folder + '/' + files[index];
