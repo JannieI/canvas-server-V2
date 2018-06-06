@@ -86,6 +86,21 @@ app.get('/listUsersDB', function (request, res) {
         );
 })
 
+app.get('/uploadUsersCSV', function (request, res) {
+    fs.readFile( __dirname + "/" + "users.csv", 'utf8', function (err, data) {
+        var users = JSON.parse( data );
+        console.log(users[1])
+        // // Key-Value pairs
+        // Object.keys(users).forEach(function(key) {
+        //     nSQL("posts").query(
+        //         "upsert", 
+        //         users[key]
+        //     ).exec()
+            // console.log('Added record for ', key);
+    });
+});
+
+
 app.get('/uploadUsers', function (request, res) {
     fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
         var users = JSON.parse( data );
@@ -103,6 +118,24 @@ app.get('/uploadUsers', function (request, res) {
         .exec().then((rows) => 
             res.send(rows)
         );
+
+        // Add a new row with name:billy and age:50 as it's values.
+        // nSQL("users")
+        // .query("upsert",{name:"billy",age:50})
+        // .exec().then..
+
+        //Set all accounts with a balance less than zero to closed.
+        // nSQL("accounts")
+        // .query("upsert",{status:"closed"})
+        // .where(["balance","<",0])
+        // .exec().then...
+
+        // Assuming the primary key is id, set the data in row 5 to the provided data
+        // nSQL("users")
+        // .query("upsert",{id:5, name:"billy", age:50})
+        // .exec().then..
+
+
     });
 })
 
@@ -112,6 +145,12 @@ app.get('/deleteUsers', function (request, res) {
         .query("delete")
         .exec()
     res.send('All Users Deleted')
+
+    // Remove all users who are older than 50
+    // nSQL("users").query("delete").where(["age",">",50]).exec()...
+
+    // Same as drop command
+    // nSQL("users").query("delete").exec()...
 })
 
 app.get('/user/:id', function (request, res) {
